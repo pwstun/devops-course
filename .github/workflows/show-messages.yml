@@ -1,0 +1,48 @@
+name: Show messages
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Message type to display (greet, warn, error, custom)'
+        required: true
+        default: 'greet'
+        type: choice
+        options:
+          - greet
+          - warn
+          - error
+          - custom
+      text:
+        description: 'Custom message (used when type=custom)'
+        required: false
+
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show greeting
+        if: ${{ github.event.inputs.type == 'greet' }}
+        run: |
+          echo "Hello! This is a friendly greeting from the workflow."
+
+      - name: Show warning
+        if: ${{ github.event.inputs.type == 'warn' }}
+        run: |
+          # Use workflow command to create a warning annotation
+          echo "::warning file=README.md::This is a warning message from the workflow."
+
+      - name: Show error
+        if: ${{ github.event.inputs.type == 'error' }}
+        run: |
+          # Use workflow command to create an error annotation
+          echo "::error file=README.md::This is an error message from the workflow."
+
+      - name: Show custom message
+        if: ${{ github.event.inputs.type == 'custom' }}
+        run: |
+          if [ -z "${{ github.event.inputs.text }}" ]; then
+            echo "Se re pudrio, nos paramos re de manos."
+          else
+            echo "${{ github.event.inputs.text }}"
+          fi
