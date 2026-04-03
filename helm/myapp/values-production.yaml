@@ -1,0 +1,14 @@
+replicaCount: 3
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "stable"
+
+service:
+  type: LoadBalancer
+  port: 80
+
+env:
+  name: "prod"
+  message: "Hello from production"
