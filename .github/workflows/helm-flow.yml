@@ -1,50 +1,30 @@
-name: Helm chart CI
+name: Helm Kind Deploy
 
 on:
   workflow_dispatch:
     inputs:
-      env:
-        description: 'Target environment (dev, staging, prod)'
+      environment:
+        description: 'Environment (dev, staging, prod)'
         required: true
         default: 'dev'
-        type: choice
-        options:
-          - dev
-          - staging
-          - prod
 
 jobs:
-  lint-and-template:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
 
-      - name: Determine values file
-        id: values
-        run: |
-          case "${{ github.event.inputs.env }}" in
-            dev)
-              echo "values_file=values.yaml" >> $GITHUB_OUTPUT
-              ;;
-            staging)
-              echo "values_file=values-staging.yaml" >> $GITHUB_OUTPUT
-              ;;
-            prod)
-              echo "values_file=values-production.yaml" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "values_file=values.yaml" >> $GITHUB_OUTPUT
-              ;;
-          esac
+      - name: Set up kind
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: dev-cluster
 
-      - name: Lint chart
+      - name: Deploy with Helm
         run: |
-          helm lint ./helm/myapp --values ./helm/myapp/${{ steps.values.outputs.values_file }}
-
-      - name: Template chart
-        run: |
-          helm template myapp ./helm/myapp --values ./helm/myapp/${{ steps.values.outputs.values_file }}
+          helm upgrade --install myapp ./helm/myapp \
+            -f ./helm/myapp/values-${{ github.event.inputs.environment }}.yaml \
+            --set image.repository=busybox
