@@ -1,0 +1,50 @@
+name: Helm chart CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Target environment (dev, staging, prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+jobs:
+  lint-and-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Determine values file
+        id: values
+        run: |
+          case "${{ github.event.inputs.env }}" in
+            dev)
+              echo "values_file=values.yaml" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "values_file=values-staging.yaml" >> $GITHUB_OUTPUT
+              ;;
+            prod)
+              echo "values_file=values-production.yaml" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "values_file=values.yaml" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Lint chart
+        run: |
+          helm lint ./helm/myapp --values ./helm/myapp/${{ steps.values.outputs.values_file }}
+
+      - name: Template chart
+        run: |
+          helm template myapp ./helm/myapp --values ./helm/myapp/${{ steps.values.outputs.values_file }}
