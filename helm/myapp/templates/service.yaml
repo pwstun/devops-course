@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: {{ include "myapp.fullname" . }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   selector:
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app: {{ include "myapp.name" . }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.port }}
+    - port: 80
+      targetPort: 8080
