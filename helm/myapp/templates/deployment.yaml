@@ -17,7 +17,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
-          args: ["echo '{{ .Values.message }}' > /www/index.html && httpd -f -p 8080 -h /www"]
-      ports:
-        - containerPort: 8080
+          args: ["echo '${{ .Values.message }}' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+          ports:
+            - containerPort: 80
       
