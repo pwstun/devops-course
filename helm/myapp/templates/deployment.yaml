@@ -16,8 +16,6 @@ spec:
         - name: {{ include "myapp.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh", "-c"]
-          args: ["echo '${{ .Values.message }}' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
           ports:
-            - containerPort: 80
+            - containerPort: 8080
       

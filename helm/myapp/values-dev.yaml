@@ -1,6 +1,5 @@
 replicaCount: 1
 image:
-  repository: nginx
+  repository: myapp
   tag: latest
-  pullPolicy: IfNotPresent
-message: "Hello from default values!"
+  pullPolicy: Never
